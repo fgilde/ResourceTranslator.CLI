@@ -6,7 +6,7 @@ This tool can translate your resource files with Microsoft Cognitive Service for
 To install it
 
 ```cmd
-dotnet tool install --global resourceTranslator
+dotnet tool install --global ResourceTranslator.CLI
 ```
 
 The easiest way to run it
