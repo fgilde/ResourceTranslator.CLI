@@ -1,6 +1,9 @@
 # ResourceTranslator.CLI
 This tool can translate your resource files with Microsoft Cognitive Service for translations
 
+## Change log
+- 1.0.2 Only tranlate if translations are missing or overwrite option is passed
+
 ## General
 
 To install it
