@@ -8,6 +8,13 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <Version>1.0.2</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>This tool can translate your resource files with Microsoft Cognitive Service for translations.
+Because this tool only translate if translations are missing you have total control about your resources. Also your resources can be sorted. This helps to keep your resource files clean</Description>
+    <PackageIcon>logo.png</PackageIcon>
+    <PackageIconUrl />
+    <RepositoryUrl>https://github.com/fgilde/ResourceTranslator.CLI</RepositoryUrl>
+    <Copyright>Florian Gilde</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +25,13 @@
     <PackageReference Include="Nextended.Core" Version="5.0.4" />
     <PackageReference Include="TranslatorService" Version="3.0.11" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
