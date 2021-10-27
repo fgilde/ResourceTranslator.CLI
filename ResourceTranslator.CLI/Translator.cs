@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,35 +31,65 @@ namespace ResourceTranslator.CLI
         public async Task ExecuteAsync()
         {
             client = CreateClient();
-
-            var result = await TranslateAsync(inputDictionary.Values, _options.Target);
-            for (var cultureIndex = 0; cultureIndex < _options.Target.Length; cultureIndex++)
+            var targets = GetNeededTargets();
+            if (targets.Any())
             {
-                var targetCulture = _options.Target[cultureIndex];
-                var file = OutputFileNameForTargetCulture(targetCulture);
-                var resultDictionary = OutputDictionary(file) ?? new Dictionary<string, string>();
-                int keyIndex = 0;
-                foreach (var pair in inputDictionary)
+                var result = await TranslateAsync(inputDictionary.Values, targets);
+                for (var cultureIndex = 0; cultureIndex < targets.Length; cultureIndex++)
                 {
-                    if (!resultDictionary.ContainsKey(pair.Key) || _options.OverwriteExistingValuesWithNewTranslations)
+                    var targetCulture = targets[cultureIndex];
+                    var file = OutputFileNameForTargetCulture(targetCulture);
+                    var resultDictionary = OutputDictionary(file) ?? new Dictionary<string, string>();
+                    int keyIndex = 0;
+                    foreach (var pair in inputDictionary)
                     {
-                        resultDictionary[pair.Key] = result[keyIndex].Translations.ToList()[cultureIndex].Text;
+                        if (!resultDictionary.ContainsKey(pair.Key) || _options.OverwriteExistingValuesWithNewTranslations)
+                        {
+                            var translated = result[keyIndex]?.Translations?.ToList()[cultureIndex]?.Text;
+                            if (!string.IsNullOrWhiteSpace(translated))
+                            {
+                                resultDictionary[pair.Key] = translated;
+                            }
+                        }
+
+                        keyIndex++;
                     }
 
-                    keyIndex++;
+                    await DictionaryFileHelper.SaveDictionaryToFile(resultDictionary, file, GetResultFormat(), encoding);
                 }
-
-                if (_options.AutoSort)
-                    resultDictionary = new SortedDictionary<string, string>(resultDictionary);
-                
-                await DictionaryFileHelper.SaveDictionaryToFile(resultDictionary, file, GetResultFormat(), encoding);
+            } 
+            else
+            {
+                    Console.WriteLine("No translation needed.Skipping translate");
             }
-
             if (_options.AutoSort)
             {
+                foreach (var target in _options.Target)
+                {
+                    var file = OutputFileNameForTargetCulture(target);
+                    var targetDictionary = OutputDictionary(file);
+                    if (targetDictionary != null && targetDictionary.Any())
+                    {
+                        targetDictionary = new SortedDictionary<string, string>(targetDictionary);
+                        await DictionaryFileHelper.SaveDictionaryToFile(targetDictionary, file, GetResultFormat(), encoding);
+                    }
+
+                }
                 var sortedInputDictionary = new SortedDictionary<string, string>(inputDictionary);
-                await DictionaryFileHelper.SaveDictionaryToFile(sortedInputDictionary, _options.FileName, usedFormat, encoding);
+                await DictionaryFileHelper.SaveDictionaryToFile(sortedInputDictionary, _options.FileName,
+                    usedFormat, encoding);
             }
+        }
+
+        private string[] GetNeededTargets()
+        {
+            if (_options.OverwriteExistingValuesWithNewTranslations)
+                return _options.Target;
+
+            return (from target in _options.Target let file = OutputFileNameForTargetCulture(target) 
+                let targetDict = OutputDictionary(file) 
+                where targetDict == null || targetDict.Count != inputDictionary.Count || !inputDictionary.Keys.All(targetDict.ContainsKey) select target)
+                .ToArray();
         }
 
         private FileFormatType GetResultFormat()
