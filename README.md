@@ -1,5 +1,8 @@
 # ResourceTranslator.CLI
 This tool can translate your resource files with Microsoft Cognitive Service for translations
+To use this tool an azure TranslateApp is required.
+To create an Translate app and leran more about read this https://docs.microsoft.com/en-us/azure/cognitive-services/translator/quickstart-translator?tabs=csharp
+
 
 ## Change log
 - 1.0.2 Only tranlate if translations are missing or overwrite option is passed
@@ -62,4 +65,13 @@ In this example all parameters are stored in a `sampleOptions.json` but api key 
 ```cmd
 resourceTranslator --optionsfile "C:\PathToYourOptions\sampleOptions.json" -key "diferentApiKey" -f "PathToMyFile.json"
 ```
+
+Because this tool only translate if translations are missing by default you can easially use it on every Build to ensure your resource files are complete and sorted.
+
+```msbuild
+  <Target Name="Translate" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+    <Exec IgnoreExitCode="true" Command="dotnet tool install --global ResourceTranslator.CLI" />
+    <Exec Command="resourceTranslator --optionsfile $(ProjectDir)resourceTranslationOptions.json -f $(ProjectDir)Resources\en-US.yml" />
+  </Target>
+  ```
 
