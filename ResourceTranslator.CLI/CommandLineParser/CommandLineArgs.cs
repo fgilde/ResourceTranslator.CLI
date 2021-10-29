@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using Nextended.Core;
 using Nextended.Core.Extensions;
 
 namespace ResourceTranslator.CLI.CommandLineParser
@@ -20,46 +22,50 @@ namespace ResourceTranslator.CLI.CommandLineParser
         {
             T res = CreateTarget<T>(args);
             
-            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            foreach (var prop in props)
+            foreach (var p in CollectProperties<T>())
             {
-                var attribute = prop.GetCustomAttribute<FromCommandLineAttribute>();
-                var namesforProp = (attribute?.ParamNames.Select(s => s.EnsureStartsWith("-").ToLower()) ?? Enumerable.Empty<string>()).Concat(new [] {"-"+prop.Name.ToLower()}).Distinct().ToArray();
-                foreach (var name in namesforProp)
+                foreach (var name in NamesForProperty<T>(p))
                 {
-                    var value = GetValue(args, name);
+                    var value = ValueFromArg(args, name);
                     if (value != null)
-                        prop.SetValue(res, value.MapTo(prop.PropertyType));
+                        p.Property.SetValue(res, value.MapTo(p.Property.PropertyType));
                 }
 
-                if (attribute?.Required == true && prop.GetValue(res) == null)
-                {
-                    throw new Exception($"{prop.Name} is required, please specify {prop.Name} like one of these \r\n{string.Join(Environment.NewLine, namesforProp.Select(n => $" {n} \"<value>\""))} ");
-                }
+                ThrowIfRequiredMissing(p, res);
             }
             return res;
+        }
+
+        private static void ThrowIfRequiredMissing<T>((PropertyInfo Property, FromCommandLineAttribute Attributes) p, T res) where T : new()
+        {
+            if (p.Attributes?.Required == true && p.Property.GetValue(res) == null)
+                throw new Exception($"{p.Property.Name} is required, please specify {p.Property.Name} like one of these \r\n{string.Join(Environment.NewLine, NamesForProperty<T>(p).Select(n => $" {n} \"<value>\""))} ");
+        }
+
+        private static string[] NamesForProperty<T>((PropertyInfo Property, FromCommandLineAttribute Attributes) prop) where T : new()
+        {
+            return (prop.Attributes?.ParamNames.Select(s => s.EnsureStartsWith("-").ToLower()) ?? Enumerable.Empty<string>()).Concat(new [] {"-"+prop.Property.Name.ToLower()}).Distinct().ToArray();
+        }
+
+        private static IEnumerable<(PropertyInfo Property, FromCommandLineAttribute Attributes)> CollectProperties<T>() where T : new()
+        {
+            return typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => (p, p.GetCustomAttribute<FromCommandLineAttribute>()) );
         }
 
         private static T CreateTarget<T>(string args) where T : new()
         {
             T res = new T();
-            if (args.Contains($"--{_optionsFileNameParam}"))
-            {
-                string file = GetValue(args, $"-{_optionsFileNameParam}");
-                if (File.Exists(file))
-                {
-                    try
-                    {
-                        res = JsonSerializer.Deserialize<T>(File.ReadAllText(file));
-                    }
-                    catch {}
-                }
-            }
+            if (!args.Contains($"--{_optionsFileNameParam}")) 
+                return res;
+
+            string file = ValueFromArg(args, $"-{_optionsFileNameParam}");
+            if (File.Exists(file)) 
+                res = Check.TryCatch<T, Exception>(() => JsonSerializer.Deserialize<T>(File.ReadAllText(file)));
 
             return res ?? new T();
         }
 
-        private static string GetValue(string args, string name)
+        private static string ValueFromArg(string args, string name)
         {
             var indexOf = args.IndexOf(name, StringComparison.Ordinal);
             if (indexOf >= 0)

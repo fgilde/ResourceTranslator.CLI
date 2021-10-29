@@ -60,25 +60,30 @@ namespace ResourceTranslator.CLI
             } 
             else
             {
-                    Console.WriteLine("No translation needed.Skipping translate");
+                Console.WriteLine("No translation needed.Skipping translate");
             }
-            if (_options.AutoSort)
+            await SortAllDictionaries();
+        }
+
+        private async Task SortAllDictionaries()
+        {
+            if (!_options.AutoSort) return;
+
+            await DictionaryFileHelper.SaveDictionaryToFile(new SortedDictionary<string, string>(inputDictionary), _options.FileName, usedFormat, encoding);
+            await Task.WhenAll(_options.Target.Select(target =>
             {
-                foreach (var target in _options.Target)
+                return Task.Run(() =>
                 {
                     var file = OutputFileNameForTargetCulture(target);
                     var targetDictionary = OutputDictionary(file);
                     if (targetDictionary != null && targetDictionary.Any())
                     {
                         targetDictionary = new SortedDictionary<string, string>(targetDictionary);
-                        await DictionaryFileHelper.SaveDictionaryToFile(targetDictionary, file, GetResultFormat(), encoding);
+                        DictionaryFileHelper.SaveDictionaryToFile(targetDictionary, file, GetResultFormat(), encoding);
                     }
+                });
+            }));
 
-                }
-                var sortedInputDictionary = new SortedDictionary<string, string>(inputDictionary);
-                await DictionaryFileHelper.SaveDictionaryToFile(sortedInputDictionary, _options.FileName,
-                    usedFormat, encoding);
-            }
         }
 
         private string[] GetNeededTargets()

@@ -1,20 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Authors>Florian Gilde</Authors>
+    <PackageId>ResourceTranslator.CLI</PackageId>
+    <PackageVersion>0.0.0-dev</PackageVersion>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>resourceTranslator</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <Version>1.0.2</Version>
+    <RepositoryType>Git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>This tool can translate your resource files with Microsoft Cognitive Service for translations.
 Because this tool only translate if translations are missing you have total control about your resources. Also your resources can be sorted. This helps to keep your resource files clean</Description>
     <PackageIcon>logo.png</PackageIcon>
     <PackageIconUrl />
     <RepositoryUrl>https://github.com/fgilde/ResourceTranslator.CLI</RepositoryUrl>
-    <Copyright>Florian Gilde</Copyright>
+    <Copyright>Copyright © $(Authors) 2020-$([System.DateTime]::Now.Year)</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,9 +30,14 @@ Because this tool only translate if translations are missing you have total cont
     <PackageReference Include="Nextended.Core" Version="5.0.4" />
     <PackageReference Include="TranslatorService" Version="3.0.11" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.231">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="README.md" />
     <None Include="logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

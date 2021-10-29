@@ -15,45 +15,38 @@ namespace ResourceTranslator.CLI
             try
             {
                 options = CommandLineArgs.Parse<Options>(args);
+                return (int)Handle();
             }
             catch (Exception e)
             {
                 return (int)Return(ExitCode.UnknownError, e.Message);
             }
-            return (int)Handle();
         }
 
         static ExitCode Handle()
         {
-            try
-            {
-                if (!File.Exists(options.FileName))
-                    return Return(ExitCode.InvalidFilename, $"Error Filename {options.FileName} is invalid or not existing");
-                if (options.Target == null || options.Target.Length <= 0)
-                    return Return(ExitCode.InvalidFilename, $"Error Target cultures {options.TargetCultures} are not set correctly");
-                options.OutputDir ??= Path.GetDirectoryName(options.FileName);
+            if (!File.Exists(options.FileName))
+                return Return(ExitCode.InvalidFilename, $"Error Filename {options.FileName} is invalid or not existing");
+            if (options.Target == null || options.Target.Length <= 0)
+                return Return(ExitCode.InvalidFilename, $"Error Target cultures {options.TargetCultures} are not set correctly");
+            options.OutputDir ??= Path.GetDirectoryName(options.FileName);
 
-                var translator = new Translator(options);
-                Console.WriteLine("Begin translation...");
-                translator.ExecuteAsync().Wait();
+            var translator = new Translator(options);
+            Console.WriteLine("Begin translation...");
+            translator.ExecuteAsync().Wait();
 
-                return Return(ExitCode.Success, "");
-            }
-            catch (Exception e)
-            {
-                return Return(ExitCode.UnknownError, e.Message);
-            }
+            return Return(ExitCode.Success, "");
         }
 
         static void PrintAppliedOptions()
         {
             Console.WriteLine("Following options are used");
             Console.WriteLine();
-            string jsonString = JsonSerializer.Serialize(options, new JsonSerializerOptions() {WriteIndented = true});
+            string jsonString = JsonSerializer.Serialize(options, new JsonSerializerOptions() { WriteIndented = true });
             Console.WriteLine(jsonString);
         }
 
-        static ExitCode Return (ExitCode code, string message)
+        static ExitCode Return(ExitCode code, string message)
         {
             var color = Console.ForegroundColor;
             Console.ForegroundColor = code == ExitCode.Success ? ConsoleColor.Green : ConsoleColor.Red;

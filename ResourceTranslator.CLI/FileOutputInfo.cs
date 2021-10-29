@@ -39,7 +39,7 @@ namespace ResourceTranslator.CLI
         private static string FileNameWithoutCulture(string fileName)
         {
             fileName = CultureInfo.GetCultures(CultureTypes.SpecificCultures).Where(i => !string.IsNullOrEmpty(i.Name)).Aggregate(fileName, (current, cultureInfo) => current.Replace(cultureInfo.Name, string.Empty));
-            return CultureInfo.GetCultures(CultureTypes.NeutralCultures).Where(i => !string.IsNullOrEmpty(i.Name)).Aggregate(fileName, (current, cultureInfo) => current.Replace(cultureInfo.Name, string.Empty));
+            return CultureInfo.GetCultures(CultureTypes.NeutralCultures).Where(i => !string.IsNullOrEmpty(i.Name)).Aggregate(fileName, (current, cultureInfo) => current.Replace($".{cultureInfo.Name}.", string.Empty));
         }
     }
 }
