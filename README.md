@@ -15,6 +15,12 @@ To install it
 dotnet tool install --global ResourceTranslator.CLI
 ```
 
+To update it
+
+```cmd
+dotnet tool update ResourceTranslator.CLI -g
+```
+
 The easiest way to run it
 ```cmd
  resourceTranslator --optionsfile "C:\PathToYourOptions\sampleOptions.json"
