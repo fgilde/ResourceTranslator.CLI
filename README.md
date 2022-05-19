@@ -5,6 +5,7 @@ To create an Translate app and leran more about read this https://docs.microsoft
 
 
 ## Change log
+- 1.0.6 Allow big text content files as default if no dictionary can created. (For example usefull to translate *.md files)
 - 1.0.2 Only tranlate if translations are missing or overwrite option is passed
 
 ## General

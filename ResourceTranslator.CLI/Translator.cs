@@ -83,9 +83,14 @@ namespace ResourceTranslator.CLI
         {
             if (_options.Target.Any())
             {
-                TranslationResponse res = await client.TranslateAsync(content, _options.Target);
-                await Task.WhenAll(res.Translations.Select((translation, i) =>
-                    File.WriteAllTextAsync(OutputFileNameForTargetCulture(_options.Target[i]), translation.Text)));
+                var outputFiles = _options.Target.Select(OutputFileNameForTargetCulture).ToArray();
+                outputFiles.Where(File.Exists).Apply(File.Delete); // Because we are chunking and appending we need to delete files first
+                foreach (var chars in content.ChunkBy(4000))
+                {
+                    var text = new string(chars.ToArray());
+                    TranslationResponse res = await client.TranslateAsync(text, _options.Target);
+                    await Task.WhenAll(res.Translations.Select((translation, i) => File.AppendAllTextAsync(outputFiles[i], translation.Text)));
+                }
             }
         }
 
