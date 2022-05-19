@@ -83,13 +83,16 @@ namespace ResourceTranslator.CLI
         {
             if (_options.Target.Any())
             {
-                var outputFiles = _options.Target.Select(OutputFileNameForTargetCulture).ToArray();
-                outputFiles.Where(File.Exists).Apply(File.Delete); // Because we are chunking and appending we need to delete files first
-                foreach (var chars in content.ChunkBy(4000))
+                foreach (var targets in _options.Target.Where(t => !_options.SkipExistingOutputs || !File.Exists(OutputFileNameForTargetCulture(t))).ChunkBy(6)) // Max request by culture limit (API Requirement)
                 {
-                    var text = new string(chars.ToArray());
-                    TranslationResponse res = await client.TranslateAsync(text, _options.Target);
-                    await Task.WhenAll(res.Translations.Select((translation, i) => File.AppendAllTextAsync(outputFiles[i], translation.Text)));
+                    var outputFiles = targets.Select(OutputFileNameForTargetCulture).ToArray();
+                    outputFiles.Where(File.Exists).Apply(File.Delete); // Because we are chunking and appending we need to delete files first
+                    foreach (var chars in content.ChunkBy(5000)) // Max 5000 chars (API requirement)
+                    {
+                        var text = new string(chars.ToArray());
+                        TranslationResponse res = await client.TranslateAsync(text, targets);
+                        await Task.WhenAll(res.Translations.Select((translation, i) => File.AppendAllTextAsync(outputFiles[i], translation.Text)));
+                    }
                 }
             }
         }

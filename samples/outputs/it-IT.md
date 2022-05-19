@@ -72,7 +72,7 @@ Per utilizzare 'dotnet-ef' per le migrazioni, aggiungi i seguenti flag al tuo co
 
 Ad esempio, per aggiungere una nuova migrazione dalla cartella principale:
 
-'dotnet ef migrations add "SampleMigration" --project src\Infrastructure --startup-project src\Server --output-dir Migrations`
+'dotnet ef migrations add "SampleMigration" --project src\Infrastructure --startup-project src\Server --output-dir Migrations'
 
 ## Panoramica
 
@@ -90,4 +90,4 @@ Questo livello contiene classi per l'accesso a risorse esterne quali file system
 
 ### Web
 
-Questo livello è l'applicazione a pagina singola basata su Blazor e il server e l'API come ASP.NET Core 5. Questo livello dipende sia dai livelli Applicazione che Infrastruttura, tuttavia, la dipendenza dall'infrastruttura è solo per supportare l'iniezione di dipendenze. Pertanto solo *Startup.cs* dovrebbe fare riferimento all'infrastruttura.
+Questo livello è l'applicazione a pagina singola basata su Blazor e il server e l'API come ASP.NET Core 5. Questo livello dipende sia dal livello Applicazione che da quello Infrastruttura, tuttavia, la dipendenza da Infrastruttura è only per supportare l'iniezione di dipendenza. Pertanto solo *Startup.cs* dovrebbe fare riferimento all'infrastruttura.

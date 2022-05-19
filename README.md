@@ -5,6 +5,8 @@ To create an Translate app and leran more about read this https://docs.microsoft
 
 
 ## Change log
+- 1.0.7 Option to skip existing output files
+- 1.0.7 Chunking Targets and Contents for Text files 
 - 1.0.6 Allow big text content files as default if no dictionary can created. (For example usefull to translate *.md files)
 - 1.0.2 Only tranlate if translations are missing or overwrite option is passed
 
@@ -65,6 +67,7 @@ Based on your input options for `TargetCultures` this tool creates translations 
 | OutputFormat      | format            | `-format "Json"`   | no           | Default same as input but if you want to convert yaml to json for example you can specify a format here
 | OverwriteExistingValuesWithNewTranslations      | overwritevalues            | `-overwritevalues "True"`   | no           | If this is true existing target resources will overwridden and not merged
 | AutoSort      | sort            | `-sort "True"`   | no           | If this is true all result files and the input file file sorted automatically Asc
+| SkipExistingOutputs      | skip            | `-skip "True"`   | no           | If this is true existing output files will not be changed (This setting is ignored for dictionaries and only used for Text based files)
 
 
 #### Notice!: You can combine passing options file and overwrite only some parameters.

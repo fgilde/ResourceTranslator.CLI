@@ -72,7 +72,7 @@ Om du vill använda "dotnet-ef" för dina migreringar lägger du till följande 
 
 Om du till exempel vill lägga till en ny migrering från rotmappen:
 
-'dotnet ef migrations add 'SampleMigration' --project src\Infrastructure --startup-project src\Server --output-dir Migrations`
+'dotnet ef migrations add 'SampleMigration' --project src\Infrastructure --startup-project src\Server --output-dir Migrations'
 
 ## Översikt
 
@@ -90,4 +90,4 @@ Det här lagret innehåller klasser för åtkomst till externa resurser som fils
 
 ### Webben
 
-Det här lagret är ensidesprogrammet baserat på Blazor och server- och API:et som ASP.NET Core 5. Det här lagret beror på både program- och infrastrukturlagren, men beroendet av infrastruktur är bara för att stödja beroendeinjektion. Därför bör endast *Startup.cs* referera till Infrastruktur.
+Det här lagret är ensidesprogrammet baserat på Blazor och server- och API:et som ASP.NET Core 5. Det här lagret beror på både applikations- och infrastrukturlagren, men beroendet av infrastruktur är only för att stödja beroendeinjektion. Därför bör endast *Startup.cs* referera till Infrastruktur.

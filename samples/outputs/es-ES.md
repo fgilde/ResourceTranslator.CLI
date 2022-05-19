@@ -72,7 +72,7 @@ Para usar 'dotnet-ef' para sus migraciones, agregue las siguientes marcas a su c
 
 Por ejemplo, para agregar una nueva migración desde la carpeta raíz:
 
-'dotnet ef migrations add "SampleMigration" --project src\Infrastructure --startup-project src\Server --output-dir Migrations`
+'dotnet ef migrations add "SampleMigration" --project src\Infrastructure --startup-project src\Server --output-dir Migrations'
 
 ## Visión general
 
@@ -90,4 +90,4 @@ Esta capa contiene clases para acceder a recursos externos como sistemas de arch
 
 ### Web
 
-Esta capa es la aplicación de una sola página basada en Blazor y el servidor y la API como ASP.NET Core 5. Esta capa depende de las capas Aplicación e Infraestructura, sin embargo, la dependencia de Infraestructura es solo para admitir la inyección de dependencias. Por lo tanto, solo *Startup.cs* debe hacer referencia a Infraestructura.
+Esta capa es la aplicación de una sola página basada en Blazor y el servidor y la API como ASP.NET Core 5. Esta capa depende de las capas De aplicación e Infraestructura, sin embargo, la dependencia de Infraestructura es only para apoyar la inyección de dependencia. Por lo tanto, solo *Startup.cs* debe hacer referencia a Infraestructura.

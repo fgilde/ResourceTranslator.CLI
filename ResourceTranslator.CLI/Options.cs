@@ -39,5 +39,8 @@ namespace ResourceTranslator.CLI
 
         [FromCommandLine("sort", nameof(AutoSort))]
         public bool AutoSort { get; set; }
+
+        [FromCommandLine("skip", nameof(SkipExistingOutputs))]
+        public bool SkipExistingOutputs { get; set; }
     }
 }

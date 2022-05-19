@@ -72,7 +72,7 @@ Um 'dotnet-ef' für Ihre Migrationen zu verwenden, fügen Sie bitte die folgende
 
 So fügen Sie beispielsweise eine neue Migration aus dem Stammordner hinzu:
 
-'dotnet ef migrations add "SampleMigration" --project src\Infrastructure --startup-project src\Server --output-dir Migrations`
+'dotnet ef migrations add 'SampleMigration' --project src\Infrastructure --startup-project src\Server --output-dir Migrations'
 
 ## Übersicht
 
@@ -90,4 +90,4 @@ Diese Schicht enthält Klassen für den Zugriff auf externe Ressourcen wie Datei
 
 ### Weblinks
 
-Diese Schicht ist die Single-Page-Anwendung, die auf Blazor und dem Server und der API als ASP.NET Core 5 basiert. Diese Schicht hängt sowohl von der Anwendungs- als auch von der Infrastrukturschicht ab, die Abhängigkeit von der Infrastruktur dient jedoch nur dazu, die Abhängigkeitsinjektion zu unterstützen. Daher sollte nur *Startup.cs* auf Infrastruktur verweisen.
+Diese Schicht ist die Single-Page-Anwendung, die auf Blazor und dem Server und der API als ASP.NET Core 5 basiert. Diese Schicht hängt sowohl von der Anwendungs- als auch von der Infrastrukturschicht ab, die Abhängigkeit von der Infrastruktur ist jedoch only, um die Abhängigkeitsinjektion zu unterstützen. Daher sollte nur *Startup.cs* auf Infrastruktur verweisen.
