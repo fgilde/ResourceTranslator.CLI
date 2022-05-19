@@ -11,11 +11,13 @@ namespace ResourceTranslator.CLI
             return lower switch
             {
                 ".json" => FileFormatType.Json,
+                //".ts" => FileFormatType.TypeScriptObject,
+                //".js" => FileFormatType.JavaScriptObject,
                 ".yml" => FileFormatType.Yaml,
                 ".yaml" => FileFormatType.Yaml,
                 ".xml" => FileFormatType.Xml,
                 ".resx" => FileFormatType.Xml,
-                _ => throw new NotSupportedException($"Type of {fileName} is not supported")
+                _ => FileFormatType.Text
             };
         }
     }
@@ -24,6 +26,9 @@ namespace ResourceTranslator.CLI
     {
         Json,
         Yaml,
-        Xml
+        Xml,
+        TypeScriptObject,
+        JavaScriptObject,
+        Text
     }
 }

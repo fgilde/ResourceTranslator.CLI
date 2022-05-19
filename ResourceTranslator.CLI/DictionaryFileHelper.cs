@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -21,11 +22,20 @@ namespace ResourceTranslator.CLI
         {
             return fileFormat switch
             {
+                FileFormatType.TypeScriptObject => CreateFromTypeScriptObject(filename),
                 FileFormatType.Json => CreateFromJson(filename),
                 FileFormatType.Yaml => CreateFromYaml(filename),
                 FileFormatType.Xml => CreateFromXml(filename),
                 _ => throw new ArgumentOutOfRangeException(nameof(fileFormat), fileFormat, null)
             };
+        }
+
+        private static IDictionary<string, string> CreateFromTypeScriptObject(string filename)
+        {
+            var content = File.ReadAllText(filename);
+            var startIndex = content.IndexOf('{'); // Object begins (maybe)
+            var result = File.ReadAllLines(filename).Select(s => s.Split(":")).Where(parts => parts.Length == 2).ToDictionary(parts => parts[0], parts => parts[1]);
+            return result;
         }
 
         public static Task SaveDictionaryToFile(IDictionary<string, string> dictionary, string fileName,

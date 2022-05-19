@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using Nextended.Core.Extensions;
@@ -18,12 +19,20 @@ namespace ResourceTranslator.CLI
         private TranslatorClient client;
         private FileOutputInfo outputInfo;
         private Encoding encoding;
+        private string content; 
 
         public Translator(Options options)
         {
             _options = options;
             usedFormat = SupportedFormats.FileFormat(options.FileName);
-            inputDictionary = DictionaryFileHelper.LoadDictionaryFromFile(options.FileName, usedFormat);
+            if (usedFormat != FileFormatType.Text)
+            {
+                inputDictionary = DictionaryFileHelper.LoadDictionaryFromFile(options.FileName, usedFormat);
+            }
+            else
+            {
+                content = File.ReadAllText(options.FileName);
+            }
             encoding = EncodingHelper.GetEncoding(options.FileName) ?? Encoding.UTF8;
             outputInfo = FileOutputInfo.CreateFileOutputInfos(_options.FileName);
         }
@@ -31,6 +40,11 @@ namespace ResourceTranslator.CLI
         public async Task ExecuteAsync()
         {
             client = CreateClient();
+            if (usedFormat == FileFormatType.Text)
+            {
+                await ExecuteTextAsync();
+                return;
+            }
             var targets = GetNeededTargets();
             if (targets.Any())
             {
@@ -63,6 +77,16 @@ namespace ResourceTranslator.CLI
                 Console.WriteLine("No translation needed.Skipping translate");
             }
             await SortAllDictionaries();
+        }
+
+        private async Task ExecuteTextAsync()
+        {
+            if (_options.Target.Any())
+            {
+                TranslationResponse res = await client.TranslateAsync(content, _options.Target);
+                await Task.WhenAll(res.Translations.Select((translation, i) =>
+                    File.WriteAllTextAsync(OutputFileNameForTargetCulture(_options.Target[i]), translation.Text)));
+            }
         }
 
         private async Task SortAllDictionaries()
@@ -125,6 +149,8 @@ namespace ResourceTranslator.CLI
         private string OutputFileNameForTargetCulture(string targetCulture)
         {
             var fileName = outputInfo.Clone().SetProperties(i => i.Culture = targetCulture).ToString(_options.FileOutputFormat);
+            if (!Directory.Exists(_options.OutputDir))
+                Directory.CreateDirectory(_options.OutputDir);
             return Path.Combine(_options.OutputDir, fileName);
         }
 
