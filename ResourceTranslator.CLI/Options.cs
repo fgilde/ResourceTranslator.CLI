@@ -42,5 +42,8 @@ namespace ResourceTranslator.CLI
 
         [FromCommandLine("skip", nameof(SkipExistingOutputs))]
         public bool SkipExistingOutputs { get; set; }
+
+        [FromCommandLine("encoding", nameof(Encoding))]
+        public string Encoding { get; set; } = "auto";
     }
 }

@@ -5,7 +5,9 @@ To create an Translate app and leran more about read this https://docs.microsoft
 
 
 ## Change log
-- 1.0.7 Option to skip existing output files
+- 1.0.9 New option "Encoding" to specify encoding
+- 1.0.9 Support markdown files as input
+- 1.0.8 Option to skip existing output files
 - 1.0.7 Chunking Targets and Contents for Text files 
 - 1.0.6 Allow big text content files as default if no dictionary can created. (For example usefull to translate *.md files)
 - 1.0.2 Only tranlate if translations are missing or overwrite option is passed
@@ -42,7 +44,8 @@ The passed options file can look like this for example
   "Region": "germanywestcentral",
   "OutputFormat": null,
   "OverwriteExistingValuesWithNewTranslations": false,
-  "AutoSort": true
+  "AutoSort": true,
+  "Encoding": "utf-8" // use "auto" to use the same encoding as the input file
 }
 ```
 
@@ -68,6 +71,7 @@ Based on your input options for `TargetCultures` this tool creates translations 
 | OverwriteExistingValuesWithNewTranslations      | overwritevalues            | `-overwritevalues "True"`   | no           | If this is true existing target resources will overwridden and not merged
 | AutoSort      | sort            | `-sort "True"`   | no           | If this is true all result files and the input file file sorted automatically Asc
 | SkipExistingOutputs      | skip            | `-skip "True"`   | no           | If this is true existing output files will not be changed (This setting is ignored for dictionaries and only used for Text based files)
+| Encoding      | encoding            | `-encoding "auto"`   | no           | "auto" is default then the same encoding as the entrance file is used, otherwise specify it here fallback is utf-8
 
 
 #### Notice!: You can combine passing options file and overwrite only some parameters.

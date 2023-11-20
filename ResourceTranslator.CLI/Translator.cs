@@ -32,9 +32,24 @@ namespace ResourceTranslator.CLI
             else
             {
                 content = File.ReadAllText(options.FileName);
-            }
-            encoding = EncodingHelper.GetEncoding(options.FileName) ?? Encoding.UTF8;
+            }            
+            if(options.Encoding == "auto")
+                encoding = EncodingHelper.GetEncoding(options.FileName) ?? Encoding.UTF8;
+            else
+                encoding = FindEncoding(options.Encoding);
             outputInfo = FileOutputInfo.CreateFileOutputInfos(_options.FileName);
+        }
+
+        private Encoding FindEncoding(string encoding = "utf-8")
+        {
+            try
+            {
+                return Encoding.GetEncoding(encoding);
+            }
+            catch (ArgumentException)
+            {
+                return Encoding.UTF8;
+            }
         }
 
         public async Task ExecuteAsync()
