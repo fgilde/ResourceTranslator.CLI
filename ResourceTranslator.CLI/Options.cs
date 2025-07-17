@@ -45,5 +45,8 @@ namespace ResourceTranslator.CLI
 
         [FromCommandLine("encoding", nameof(Encoding))]
         public string Encoding { get; set; } = "auto";
+
+        //[FromCommandLine("jsonentrypath", "entry", "jsonentry", nameof(JsonEntryPath))]
+        //public string JsonEntryPath { get; set; } = "";
     }
 }

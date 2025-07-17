@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nextended.Core.Helper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml;
+using Newtonsoft.Json.Linq;
 using YamlDotNet.Serialization;
 
 namespace ResourceTranslator.CLI
@@ -73,13 +75,14 @@ namespace ResourceTranslator.CLI
         {
             if (File.Exists(fileName))
                 File.Delete(fileName);
+            var dict = JsonDictionaryConverter.ConvertToUnflattenDictionary(dictionary);
             var jsonSerializerOptions = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 WriteIndented = true
             };
             
-            string json = JsonSerializer.Serialize(dictionary, jsonSerializerOptions);
+            string json = JsonSerializer.Serialize(dict, jsonSerializerOptions);
             File.WriteAllText(fileName, json, encoding);
             return Task.CompletedTask;
         }
@@ -110,7 +113,10 @@ namespace ResourceTranslator.CLI
 
         private static IDictionary<string, string> CreateFromJson(string filename)
         {
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(filename));
+            JObject jsonObject = JObject.Parse(File.ReadAllText(filename));
+            var dict = JsonDictionaryConverter.Flatten(jsonObject);
+            return dict;
+            //return JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(filename));
         }
 
 

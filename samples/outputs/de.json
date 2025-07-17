@@ -1,0 +1,8 @@
+﻿{
+  "culture": "de",
+  "texts": {
+    "Menu:Shipments": "Verschiffungen",
+    "MyAccount": "Mein Konto",
+    "SamplePageMessage": "Eine Beispielseite für das Hub-Modul"
+  }
+}
