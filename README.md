@@ -36,7 +36,7 @@ The passed options file can look like this for example
 {
   "FileName": "C:\\dev\\myProject\\src\\Shared\\Resources\\en-US.yml",
   "TextTranslationEndpoint": "https://api.cognitive.microsofttranslator.com/",
-  "ApiKey": "<your cognitive service api key>",
+  "ApiKey": "<your cognitive service api key this value can also be a environment variable>",
   "FileOutputFormat": "{FileName}.{Culture}.{Extension}",
   "OutputDir": "C:\\dev\\myProject\\src\\Shared\\Resources",
   "TargetCultures": "de-DE, es-ES, it-IT, sv-SE, en-GB",

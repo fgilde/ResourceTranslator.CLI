@@ -14,7 +14,7 @@ namespace ResourceTranslator.CLI
         {
             try
             {
-                options = CommandLineArgs.Parse<Options>(args);
+                options = ApiKeyFromEnv(CommandLineArgs.Parse<Options>(args));
                 return (int)Handle();
             }
             catch (Exception e)
@@ -62,6 +62,24 @@ namespace ResourceTranslator.CLI
             PrintAppliedOptions();
 
             return code;
+        }
+
+        static Options ApiKeyFromEnv(Options options)
+        {
+            var apiKeyName = options.ApiKey;
+            var apiKey = Environment.GetEnvironmentVariable(apiKeyName);
+            if (!string.IsNullOrEmpty(apiKey))
+                options.ApiKey = apiKey;
+            apiKey = Environment.GetEnvironmentVariable(apiKeyName, EnvironmentVariableTarget.User);
+            if (!string.IsNullOrEmpty(apiKey))
+                options.ApiKey = apiKey;
+            apiKey = Environment.GetEnvironmentVariable(apiKeyName, EnvironmentVariableTarget.Process);
+            if (!string.IsNullOrEmpty(apiKey))
+                options.ApiKey = apiKey;
+            apiKey = Environment.GetEnvironmentVariable(apiKeyName, EnvironmentVariableTarget.Machine);
+            if (!string.IsNullOrEmpty(apiKey))
+                options.ApiKey = apiKey;
+            return options;
         }
 
     }
