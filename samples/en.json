@@ -42,7 +42,6 @@
     "NewsletterInfo": "Get information about the latest happenings.",
     "NewsletterPreference_Default": "Default Newsletter",
     "NewsletterPrivacyAcceptMessage": "I accept the <a href='/privacy-policy'>Privacy Policy</a>.",
-    "Permission:Books": "Book Management",
     "Permission:Cargonerds": "Book Store",
     "Permission:Dashboard": "Dashboard",
     "Price": "Price",
@@ -67,10 +66,12 @@
       "7": "Science fiction",
       "8": "Poetry"
     },
-    "'Permission:Books": {
-      "Create'": "Creating new books",
-      "Delete'": "Deleting the books",
-      "Edit'": "Editing the books"
-    }
+    "Permission:Books": {
+      "Create": "Creating new books",
+      "Delete": "Deleting the books",
+      "Edit": "Editing the books"
+    },
+    "Sample.Text.With.Dot": "This is a sample text with a dot in its key.",
+    "Sample text with spaces": "This is a sample text with spaces."
   }
 }
