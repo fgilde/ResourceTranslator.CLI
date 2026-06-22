@@ -14,6 +14,12 @@ namespace ResourceTranslator.CLI
         {
             try
             {
+                if (CommandLineArgs.IsHelpRequested(args))
+                {
+                    Console.WriteLine(CommandLineArgs.BuildUsage<Options>("resourceTranslator"));
+                    return (int)ExitCode.Success;
+                }
+
                 options = ApiKeyFromEnv(CommandLineArgs.Parse<Options>(args));
                 return (int)Handle();
             }

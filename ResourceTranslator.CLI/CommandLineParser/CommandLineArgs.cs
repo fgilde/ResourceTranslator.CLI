@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using Nextended.Core;
 using Nextended.Core.Extensions;
@@ -13,9 +14,43 @@ namespace ResourceTranslator.CLI.CommandLineParser
     {
         private const string _optionsFileNameParam = "optionsfile";
 
+        private static readonly string[] _helpParams = { "-h", "--help", "-help", "-?", "/?" };
+
         public static T Parse<T>(string[] args) where T : new()
         {
             return Parse<T>(string.Join(" ", args));
+        }
+
+        public static bool IsHelpRequested(string[] args)
+        {
+            return args == null
+                   || args.Length == 0
+                   || args.Any(a => _helpParams.Contains(a, StringComparer.OrdinalIgnoreCase));
+        }
+
+        public static string BuildUsage<T>(string toolName) where T : new()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"Usage: {toolName} [options]");
+            sb.AppendLine();
+            sb.AppendLine("Options:");
+
+            foreach (var p in CollectProperties<T>())
+            {
+                var names = string.Join(", ", NamesForProperty<T>(p));
+                var required = p.Attributes?.Required == true ? " (required)" : "";
+                sb.AppendLine($"  {names}{required}");
+                if (!string.IsNullOrWhiteSpace(p.Attributes?.Help))
+                    sb.AppendLine($"      {p.Attributes.Help}");
+            }
+
+            sb.AppendLine($"  --{_optionsFileNameParam}");
+            sb.AppendLine("      Path to a JSON file containing the options. CLI flags override its values.");
+            sb.AppendLine();
+            sb.AppendLine("  -h, --help");
+            sb.AppendLine("      Show this help and exit.");
+
+            return sb.ToString();
         }
 
         public static T Parse<T>(string args) where T : new()
@@ -49,7 +84,12 @@ namespace ResourceTranslator.CLI.CommandLineParser
 
         private static IEnumerable<(PropertyInfo Property, FromCommandLineAttribute Attributes)> CollectProperties<T>() where T : new()
         {
-            return typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => (p, p.GetCustomAttribute<FromCommandLineAttribute>()) );
+            // Only writable properties can be bound from the command line. Read-only computed
+            // properties (e.g. Options.Target) would otherwise throw "Property set method not found."
+            // when their auto-derived name collides with a real flag.
+            return typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanWrite)
+                .Select(p => (p, p.GetCustomAttribute<FromCommandLineAttribute>()) );
         }
 
         private static T CreateTarget<T>(string args) where T : new()
