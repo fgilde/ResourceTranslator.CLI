@@ -72,6 +72,7 @@ Based on your input options for `TargetCultures` this tool creates translations 
 | AutoSort      | sort            | `-sort "True"`   | no           | If this is true all result files and the input file file sorted automatically Asc
 | SkipExistingOutputs      | skip            | `-skip "True"`   | no           | If this is true existing output files will not be changed (This setting is ignored for dictionaries and only used for Text based files)
 | Encoding      | encoding            | `-encoding "auto"`   | no           | "auto" is default then the same encoding as the entrance file is used, otherwise specify it here fallback is utf-8
+| IgnoreKeys      | ignorekeys            | `-ignorekeys "culture, meta.*"`   | no           | Keys whose values are identifiers rather than prose (a culture code, an id, a url) and must be copied verbatim instead of translated. Split by , or ; possible. The full dotted path must match exactly, so `culture` does not also ignore `parent.child.culture`; a trailing `*` matches by prefix for whole subtrees. Case-insensitive.
 
 
 #### Notice!: You can combine passing options file and overwrite only some parameters.
