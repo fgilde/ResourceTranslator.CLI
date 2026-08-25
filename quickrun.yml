@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://fgilde.github.io/QuickRun/quickrun.schema.json
+name: ResourceTranslator
+description: "The translator CLI. It targets several frameworks, so the run pins one."
+
+requires:
+  - tool: dotnet
+    version: ">=10.0"
+    install: https://dotnet.microsoft.com/download
+
+inputs:
+  - id: args
+    label: Arguments
+    type: text
+    description: Passed straight to the tool. Leave it as it is to print the help.
+    default: "--help"
+
+setup:
+  - run: dotnet restore
+
+tasks:
+  - name: cli
+    run: dotnet run --project ResourceTranslator.CLI -f net10.0 -- ${inputs.args}
