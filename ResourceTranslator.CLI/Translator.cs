@@ -63,30 +63,48 @@ namespace ResourceTranslator.CLI
             var targets = GetNeededTargets();
             if (targets.Any())
             {
-                var result = await TranslateAsync(inputDictionary.Values, targets);
-                for (var cultureIndex = 0; cultureIndex < targets.Length; cultureIndex++)
+                var outputDictionaries = targets.ToDictionary(
+                    target => target,
+                    target => OutputDictionary(OutputFileNameForTargetCulture(target)) ?? new Dictionary<string, string>());
+
+                // Translate only what is actually missing, not the whole file. One target lacking a
+                // single key used to re-translate every entry for every needed target, which is the
+                // difference between a handful of billed strings per build and thousands.
+                // Ordering matters: the API result is correlated back to this list by index.
+                var pending = inputDictionary
+                    .Where(pair => !IsIgnoredKey(pair.Key))
+                    .Where(pair => _options.OverwriteExistingValuesWithNewTranslations
+                                   || outputDictionaries.Values.Any(output => !output.ContainsKey(pair.Key)))
+                    .ToList();
+
+                if (pending.Any())
                 {
-                    var targetCulture = targets[cultureIndex];
-                    var file = OutputFileNameForTargetCulture(targetCulture);
-                    var resultDictionary = OutputDictionary(file) ?? new Dictionary<string, string>();
-                    int keyIndex = 0;
-                    foreach (var pair in inputDictionary)
+                    var result = await TranslateAsync(pending.Select(pair => pair.Value), targets);
+                    for (var cultureIndex = 0; cultureIndex < targets.Length; cultureIndex++)
                     {
-                        if (!resultDictionary.ContainsKey(pair.Key) || _options.OverwriteExistingValuesWithNewTranslations)
+                        var resultDictionary = outputDictionaries[targets[cultureIndex]];
+                        for (var keyIndex = 0; keyIndex < pending.Count; keyIndex++)
                         {
+                            var pair = pending[keyIndex];
+                            if (resultDictionary.ContainsKey(pair.Key) && !_options.OverwriteExistingValuesWithNewTranslations)
+                                continue;
+
                             var translated = result[keyIndex]?.Translations?.ToList()[cultureIndex]?.Text;
                             if (!string.IsNullOrWhiteSpace(translated))
                             {
                                 resultDictionary[pair.Key] = translated;
                             }
                         }
-
-                        keyIndex++;
                     }
-
-                    await DictionaryFileHelper.SaveDictionaryToFile(resultDictionary, file, GetResultFormat(), encoding);
                 }
-            } 
+
+                foreach (var target in targets)
+                {
+                    var resultDictionary = outputDictionaries[target];
+                    ApplyIgnoredValues(resultDictionary);
+                    await DictionaryFileHelper.SaveDictionaryToFile(resultDictionary, OutputFileNameForTargetCulture(target), GetResultFormat(), encoding);
+                }
+            }
             else
             {
                 Console.WriteLine("No translation needed.Skipping translate");
@@ -109,6 +127,44 @@ namespace ResourceTranslator.CLI
                         await Task.WhenAll(res.Translations.Select((translation, i) => File.AppendAllTextAsync(outputFiles[i], translation.Text)));
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// True for keys listed in -ignorekeys, whose value is an identifier rather than prose.
+        /// Sending such a value to the translator corrupts it whenever it happens to read as a word in
+        /// the target language: a resource file's own "culture": "en" comes back as "في" (ar), "v" (cs,
+        /// sl), "i" (sv), "içinde" (tr) or "trong" (vi), while staying "en" for every other target —
+        /// which is why it only ever looked intermittently broken.
+        /// </summary>
+        private bool IsIgnoredKey(string key)
+        {
+            return _options.IgnoredKeys.Any(ignored => MatchesKey(key, ignored));
+        }
+
+        /// <summary>
+        /// Exact match on the whole dotted path, so "culture" ignores a root-level culture without also
+        /// ignoring "parent.child.culture". A trailing * switches to prefix matching for whole subtrees.
+        /// Comparison is case-insensitive, so a file spelling the key "Culture" is covered too.
+        /// </summary>
+        private static bool MatchesKey(string key, string configured)
+        {
+            if (configured.EndsWith("*", StringComparison.Ordinal))
+                return key.StartsWith(configured[..^1], StringComparison.OrdinalIgnoreCase);
+
+            return string.Equals(key, configured, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Copies the entries held back from translation into the output, without clobbering a value the
+        /// output already has — an existing culture identifier there is the target's own and more correct
+        /// than the source's.
+        /// </summary>
+        private void ApplyIgnoredValues(IDictionary<string, string> resultDictionary)
+        {
+            foreach (var pair in inputDictionary.Where(pair => IsIgnoredKey(pair.Key) && !resultDictionary.ContainsKey(pair.Key)))
+            {
+                resultDictionary[pair.Key] = pair.Value;
             }
         }
 
@@ -138,9 +194,13 @@ namespace ResourceTranslator.CLI
             if (_options.OverwriteExistingValuesWithNewTranslations)
                 return _options.Target;
 
-            return (from target in _options.Target let file = OutputFileNameForTargetCulture(target) 
-                let targetDict = OutputDictionary(file) 
-                where targetDict == null || targetDict.Count != inputDictionary.Count || !inputDictionary.Keys.All(targetDict.ContainsKey) select target)
+            // Deliberately no count comparison: a target carrying an extra key the source no longer has
+            // (a key that was renamed or removed after being translated once — nothing prunes those)
+            // can never match the source count, which pinned that culture to "needs translation" on
+            // every single run, forever. Only genuinely missing source keys make a target needed.
+            return (from target in _options.Target let file = OutputFileNameForTargetCulture(target)
+                let targetDict = OutputDictionary(file)
+                where targetDict == null || !inputDictionary.Keys.All(targetDict.ContainsKey) select target)
                 .ToArray();
         }
 

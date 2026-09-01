@@ -46,6 +46,11 @@ namespace ResourceTranslator.CLI
         [FromCommandLine("encoding", nameof(Encoding))]
         public string Encoding { get; set; } = "auto";
 
+        [FromCommandLine("ignorekeys", nameof(IgnoreKeys), Help = "Comma separated keys whose values are identifiers rather than prose (a culture code, an id, a url) and must be copied verbatim instead of translated. Full dotted path must match exactly, so \"culture\" does not match \"parent.child.culture\". A trailing * matches by prefix, so \"parent.*\" covers a whole subtree.")]
+        public string IgnoreKeys { get; set; } = "";
+
+        public string[] IgnoredKeys => IgnoreKeys.Split(',', ';').Select(v => v.Trim()).Where(v => v.Length > 0).ToArray();
+
         //[FromCommandLine("jsonentrypath", "entry", "jsonentry", nameof(JsonEntryPath))]
         //public string JsonEntryPath { get; set; } = "";
     }
