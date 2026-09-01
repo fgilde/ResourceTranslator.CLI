@@ -4,6 +4,8 @@ To use this tool an azure TranslateApp is required.
 To create an Translate app and leran more about read this https://docs.microsoft.com/en-us/azure/cognitive-services/translator/quickstart-translator?tabs=csharp
 
 
+[![QuickRun](https://quickrun.org/badge.svg)](https://quickrun.org/run?repo=fgilde/ResourceTranslator.CLI)
+
 ## Change log
 - 1.0.9 New option "Encoding" to specify encoding
 - 1.0.9 Support markdown files as input
